@@ -1,0 +1,39 @@
+'use client';
+
+import { useEffect } from 'react';
+
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  maxWidth = 'max-w-lg',
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  maxWidth?: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm">
+      <div className={`mt-[8vh] w-full ${maxWidth} animate-fade-up panel p-5`}>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-100">{title}</h2>
+          <button className="btn-ghost h-8 w-8 !px-0 text-lg" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}

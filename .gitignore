@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.local
+*.env
+server/data/*.json
+!server/data/.gitkeep
+platform-keypair.json
+
+# logs
+*.log
+npm-debug.log*
+
+# os
+.DS_Store
+
+# misc
+coverage/
+.turbo/
+
+# local editor/agent state
+.claude/settings.local.json
+.netlify/

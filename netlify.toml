@@ -1,0 +1,23 @@
+# Netlify deploys the `web` frontend as a static export.
+#
+# IMPORTANT: the `server` (Socket.IO custodial backend) CANNOT run on Netlify —
+# Netlify has no persistent WebSocket process. Host the server on a
+# WebSocket-capable platform (Render / Railway / Fly.io / a VPS), then set
+# NEXT_PUBLIC_SERVER_URL in Netlify → Site settings → Environment variables to
+# that backend's public URL (e.g. https://your-server.onrender.com).
+
+[build]
+  command = "npm run build:shared && npm run build --workspace web"
+  publish = "web/out"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # The app is a pure static export; skip Netlify's Next.js runtime.
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+# SPA fallback: existing files (index.html, /_next/*) are served first;
+# any unmatched path falls back to the app shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #04060a;
+  color: #e7ecf3;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(45, 212, 191, 0.3);
+  color: #effaf7;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-white/[0.07] bg-ink-850/60 shadow-panel backdrop-blur-xl;
+  }
+  .panel-soft {
+    @apply rounded-2xl border border-white/[0.06] bg-white/[0.025];
+  }
+  .card-hover {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-lift;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100;
+  }
+  .btn-brand {
+    @apply btn text-ink-975;
+    background-image: linear-gradient(135deg, #5eead4 0%, #2dd4bf 45%, #14b8a6 100%);
+    box-shadow:
+      0 0 0 1px rgba(45, 212, 191, 0.4),
+      0 10px 30px -10px rgba(45, 212, 191, 0.55);
+  }
+  .btn-brand:hover {
+    filter: brightness(1.08);
+    box-shadow:
+      0 0 0 1px rgba(94, 234, 212, 0.6),
+      0 12px 36px -8px rgba(45, 212, 191, 0.7);
+  }
+  .btn-iris {
+    @apply btn text-white;
+    background-image: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+    box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.6);
+  }
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/[0.04] text-slate-200 hover:border-white/20 hover:bg-white/[0.08];
+  }
+  .btn-subtle {
+    @apply btn text-slate-300 hover:bg-white/[0.06];
+  }
+  .btn-danger {
+    @apply btn border border-lose/30 bg-lose/10 text-lose hover:bg-lose/20;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-300;
+  }
+  .chip-brand {
+    @apply chip border-brand-500/30 bg-brand-500/10 text-brand-300;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-white/10 bg-ink-900/70 px-3.5 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20;
+  }
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500;
+  }
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-300 via-brand-400 to-iris-400 bg-clip-text text-transparent;
+  }
+  .gradient-text-anim {
+    @apply bg-gradient-to-r from-brand-300 via-iris-400 to-brand-300 bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: gradient-x 6s ease infinite;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Wallet adapter button: match the brand. */
+.wallet-adapter-button-trigger {
+  background-image: linear-gradient(135deg, #5eead4 0%, #2dd4bf 45%, #14b8a6 100%) !important;
+  background-color: transparent !important;
+  color: #04060a !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 700 !important;
+  border-radius: 0.75rem !important;
+  height: auto !important;
+  padding: 0.65rem 1.1rem !important;
+  line-height: 1.2rem !important;
+  box-shadow: 0 10px 30px -10px rgba(45, 212, 191, 0.6) !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: #0a0e16 !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}

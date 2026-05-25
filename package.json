@@ -1,0 +1,27 @@
+{
+  "name": "sol-utility-scissor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provably-fair, no-house-edge 1v1 Rock Paper Scissors on Solana",
+  "workspaces": [
+    "shared",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace shared",
+    "dev:server": "npm run dev --workspace server",
+    "dev:web": "npm run dev --workspace web",
+    "dev": "npm run build:shared && concurrently -n server,web -c green,cyan \"npm run dev:server\" \"npm run dev:web\"",
+    "test:e2e": "npm run test --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0"
+  }
+}
