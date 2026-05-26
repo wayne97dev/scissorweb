@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useApp } from '@/lib/store';
 import { loadOrCreateGuest } from '@/lib/identity';
 import { WalletButton } from './WalletButton';
+import { TokenBar } from './TokenBar';
 
 const FEATURES = [
   { icon: '🎯', label: '0% house edge' },
@@ -88,6 +89,8 @@ export function AuthGate() {
           </div>
         </div>
       </section>
+
+      <TokenBar />
 
       {/* how it works */}
       <section className="mt-4 grid gap-3 sm:grid-cols-3">

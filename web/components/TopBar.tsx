@@ -8,6 +8,7 @@ import { CashierModal } from './CashierModal';
 import { Logo } from './Logo';
 import { Identicon } from './Identicon';
 import { XIcon, X_URL } from './XIcon';
+import { hasToken, dexscreenerUrl, TICKER } from '@/lib/token';
 
 export function TopBar() {
   const { authed, pubkey, identity, balance, custody, connected, activeGame, leaveGame, logout } = useApp();
@@ -44,6 +45,17 @@ export function TopBar() {
         </button>
 
         <div className="flex items-center gap-2">
+          {hasToken() && (
+            <a
+              href={dexscreenerUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`${TICKER} on Dexscreener`}
+              className="chip-brand hidden font-bold transition hover:bg-brand-500/20 sm:inline-flex"
+            >
+              {TICKER} 📈
+            </a>
+          )}
           <a
             href={X_URL}
             target="_blank"
