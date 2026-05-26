@@ -2,13 +2,12 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { LogoMark } from '@/components/Logo';
 import { XIcon, X_URL } from '@/components/XIcon';
+import { TICKER } from '@/lib/token';
 
 export const metadata: Metadata = {
   title: 'Duel · Whitepaper',
   description: 'How Duel works: provably-fair, no-house-edge 1v1 Rock Paper Scissors on Solana.',
 };
-
-const TICKER = '$DUEL';
 
 const TOC = [
   ['overview', 'Overview'],
