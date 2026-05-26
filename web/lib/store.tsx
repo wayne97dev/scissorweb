@@ -39,6 +39,7 @@ interface AppState {
   custody: CustodyInfo | null;
   lobby: PublicGame[];
   activeGame: PublicGame | null;
+  myGame: PublicGame | null;
   record: FairnessRecord | null;
   toast: Toast | null;
   mySeat: Seat | null;
@@ -54,6 +55,7 @@ interface AppState {
   joinGame: (game: PublicGame) => void;
   makePick: (p: Pick) => void;
   leaveGame: () => void;
+  returnToGame: () => void;
   setToast: (t: Toast | null) => void;
 }
 
@@ -79,6 +81,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [custody, setCustody] = useState<CustodyInfo | null>(null);
   const [lobby, setLobby] = useState<PublicGame[]>([]);
   const [activeGame, setActiveGame] = useState<PublicGame | null>(null);
+  const [myGame, setMyGame] = useState<PublicGame | null>(null);
   const [record, setRecord] = useState<FairnessRecord | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [myPick, setMyPick] = useState<{ gameId: string; pick: Pick } | null>(null);
@@ -87,6 +90,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   activeGameRef.current = activeGame;
   const pubkeyRef = useRef<string | null>(null);
   pubkeyRef.current = pubkey;
+  const myGameRef = useRef<PublicGame | null>(null);
+  myGameRef.current = myGame;
 
   const doLogin = useCallback(async (sock: Socket, id: Identity) => {
     if (loggingInRef.current) return;
@@ -138,6 +143,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setMyPick(null);
       setRecord(null);
       setActiveGame(g);
+      setMyGame(g);
     });
     sock.on('game:state', (g: PublicGame) => {
       const cur = activeGameRef.current;
@@ -146,10 +152,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Re-attach to a live game we belong to (e.g. opponent joined after we
       // went back to the lobby, or we reconnected) so we're never stranded.
       if ((cur && cur.id === g.id) || (mine && live)) setActiveGame(g);
+      // Track our in-flight game so the lobby can offer a "return" button.
+      if (mine) {
+        if (live) setMyGame(g);
+        else setMyGame((prev) => (prev && prev.id === g.id ? null : prev));
+      }
     });
     sock.on('game:settled', (rec: FairnessRecord) => {
       const cur = activeGameRef.current;
       if (cur && cur.id === rec.gameId) setRecord(rec);
+      setMyGame((prev) => (prev && prev.id === rec.gameId ? null : prev));
     });
     sock.on('withdraw:ok', (d: { lamports: number; signature: string }) => {
       setToast({ kind: 'success', message: `Withdrawal sent (${d.signature.slice(0, 10)}…)` });
@@ -196,6 +208,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setAuthed(false);
     setPubkey(null);
     setActiveGame(null);
+    setMyGame(null);
     setRecord(null);
     socketRef.current?.disconnect().connect();
   }, []);
@@ -215,6 +228,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setActiveGame(null);
     setRecord(null);
     setMyPick(null);
+    setMyGame(null);
   }, []);
   const joinGame = useCallback((game: PublicGame) => {
     secretsRef.current.delete(game.id);
@@ -246,6 +260,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setRecord(null);
     setMyPick(null);
   }, []);
+  const returnToGame = useCallback(() => {
+    const g = myGameRef.current;
+    if (!g) return;
+    setRecord(null);
+    setActiveGame(g);
+    emit('game:subscribe', { gameId: g.id }); // rejoin room + refresh state
+  }, []);
 
   const mySeat: Seat | null = activeGame
     ? activeGame.creator === pubkey
@@ -265,6 +286,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     custody,
     lobby,
     activeGame,
+    myGame,
     record,
     toast,
     mySeat,
@@ -279,6 +301,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     joinGame,
     makePick,
     leaveGame,
+    returnToGame,
     setToast,
   };
 

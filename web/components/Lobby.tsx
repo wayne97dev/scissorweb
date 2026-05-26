@@ -9,7 +9,7 @@ import { Identicon } from './Identicon';
 const QUICK = [0.05, 0.1, 0.5, 1];
 
 export function Lobby() {
-  const { lobby, balance, pubkey, createGame, joinGame, setToast } = useApp();
+  const { lobby, balance, pubkey, myGame, createGame, joinGame, returnToGame, setToast } = useApp();
   const [bet, setBet] = useState('0.1');
 
   const betNum = Number(bet);
@@ -35,6 +35,29 @@ export function Lobby() {
 
   return (
     <div className="animate-fade-up space-y-5 py-2">
+      {/* return to your active game */}
+      {myGame && (
+        <button
+          onClick={returnToGame}
+          className="card-hover flex w-full items-center justify-between gap-3 rounded-2xl border border-brand-500/40 bg-brand-500/[0.08] p-4 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-400" />
+            </span>
+            <div>
+              <div className="text-sm font-semibold text-brand-300">You&rsquo;re in a game</div>
+              <div className="text-xs text-slate-400">
+                stake ◎ {fmtSol(myGame.betLamports)} ·{' '}
+                {myGame.status === 'open' ? 'waiting for opponent' : 'round in progress'}
+              </div>
+            </div>
+          </div>
+          <span className="btn-brand pointer-events-none">Return to game →</span>
+        </button>
+      )}
+
       {/* header + stats */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>

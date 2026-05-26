@@ -20,8 +20,8 @@ export type Seat = 'creator' | 'joiner';
 export const LAMPORTS_PER_SOL = 1_000_000_000;
 
 /** Commit/reveal timers (ms). Kept here so client & server agree. */
-export const COMMIT_WINDOW_MS = 12_000;
-export const REVEAL_WINDOW_MS = 12_000;
+export const COMMIT_WINDOW_MS = 30_000;
+export const REVEAL_WINDOW_MS = 30_000;
 
 /**
  * Canonical preimage that gets hashed for a player's commitment.
