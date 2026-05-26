@@ -13,6 +13,15 @@ export function TopBar() {
   const wallet = useWallet();
   const [cashier, setCashier] = useState(false);
 
+  const rpc = custody?.rpc ?? '';
+  const netLabel = custody?.demoMode
+    ? 'Demo'
+    : /devnet/i.test(rpc)
+      ? 'Devnet'
+      : /mainnet/i.test(rpc)
+        ? 'Mainnet'
+        : 'Live';
+
   async function onLogout() {
     try {
       if (wallet.connected) await wallet.disconnect();
@@ -36,10 +45,10 @@ export function TopBar() {
         {authed ? (
           <div className="flex items-center gap-2">
             <span
-              className={`chip hidden md:inline-flex ${custody?.demoMode ? 'text-tie' : 'text-brand-300'}`}
+              className={`chip hidden md:inline-flex ${custody?.demoMode ? 'text-tie' : netLabel === 'Mainnet' ? 'text-win' : 'text-brand-300'}`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {custody?.demoMode ? 'Demo' : 'Devnet'}
+              {netLabel}
             </span>
 
             <button

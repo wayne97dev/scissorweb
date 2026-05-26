@@ -24,8 +24,17 @@ export function Modal({
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm">
-      <div className={`mt-[8vh] w-full ${maxWidth} animate-fade-up panel p-5`}>
+    <div
+      className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="presentation"
+    >
+      <div
+        className={`mt-[8vh] w-full ${maxWidth} animate-fade-up panel p-5`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-100">{title}</h2>
           <button className="btn-ghost h-8 w-8 !px-0 text-lg" onClick={onClose} aria-label="Close">
