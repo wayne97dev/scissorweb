@@ -29,10 +29,20 @@ function getPlatform(): Keypair {
   return platform;
 }
 
+/** Host only — never expose RPC credentials / api-key query params publicly. */
+function sanitizeRpc(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return 'custom';
+  }
+}
+
 export function custodyInfo() {
   return {
     demoMode: config.demoMode,
-    rpc: config.solanaRpc,
+    rpc: sanitizeRpc(config.solanaRpc),
     platformAddress: config.demoMode || !config.platformSecret ? null : getPlatform().publicKey.toBase58(),
     faucetLamports: config.faucetLamports,
   };
