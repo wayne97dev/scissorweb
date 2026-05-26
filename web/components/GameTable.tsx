@@ -6,14 +6,14 @@ import { useApp } from '@/lib/store';
 import { fmtSol, pickEmoji, shortKey } from '@/lib/format';
 import { confettiBurst } from '@/lib/confetti';
 import { Countdown } from './Countdown';
-import { HandButton } from './HandButton';
+import { HandPicker } from './HandPicker';
+import { HandArt } from './HandArt';
 import { Identicon } from './Identicon';
 import { FairnessPanel } from './FairnessPanel';
 
-const PICKS: Pick[] = ['rock', 'paper', 'scissors'];
-
 interface HandView {
   emoji: string;
+  pick?: Pick;
   faceDown?: boolean;
   locked?: boolean;
   pulse?: boolean;
@@ -61,7 +61,7 @@ export function GameTable() {
     if (g!.status === 'committing' || g!.status === 'revealing') {
       if (isMe) {
         return mySecretPick
-          ? { emoji: pickEmoji(mySecretPick), status: '🔒 Locked in' }
+          ? { emoji: pickEmoji(mySecretPick), pick: mySecretPick, status: '🔒 Locked in' }
           : committed
             ? { emoji: '🔒', locked: true, status: '🔒 Locked in' }
             : { emoji: '✊', faceDown: true, status: 'Make your choice' };
@@ -79,6 +79,7 @@ export function GameTable() {
     if (reveal) {
       return {
         emoji: pickEmoji(reveal.pick),
+        pick: reveal.pick,
         slam,
         winner: isWinner,
         loser: isLoser,
@@ -144,16 +145,8 @@ export function GameTable() {
 
           {/* my side */}
           <div className="flex flex-col items-center gap-3">
-            <Nameplate name={mySeat ? 'You' : 'Creator'} seed={meKey ?? ''} highlight={won} />
-            {showPicker ? (
-              <div className="grid w-full max-w-[300px] grid-cols-3 gap-2">
-                {PICKS.map((p) => (
-                  <HandButton key={p} pick={p} onClick={() => makePick(p)} />
-                ))}
-              </div>
-            ) : (
-              <BigHand {...me} />
-            )}
+            <Nameplate name={mySeat ? 'You' : 'Creator'} seed={meKey ?? ''} highlight={won} stake={g.betLamports} />
+            {showPicker ? <HandPicker onLock={makePick} /> : <BigHand {...me} />}
             <StatusLine text={me.status} />
           </div>
 
@@ -180,6 +173,7 @@ export function GameTable() {
               seed={themKey ?? ''}
               waiting={g.status === 'open'}
               highlight={g.status === 'settled' && record?.outcome === themSeat}
+              stake={g.betLamports}
             />
             <BigHand {...them} />
             <StatusLine text={them.status} />
@@ -215,7 +209,19 @@ export function GameTable() {
   );
 }
 
-function Nameplate({ name, seed, waiting, highlight }: { name: string; seed: string; waiting?: boolean; highlight?: boolean }) {
+function Nameplate({
+  name,
+  seed,
+  waiting,
+  highlight,
+  stake,
+}: {
+  name: string;
+  seed: string;
+  waiting?: boolean;
+  highlight?: boolean;
+  stake?: number;
+}) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className={`rounded-full p-0.5 ${highlight ? 'bg-gradient-to-br from-win to-brand-500' : ''}`}>
@@ -231,6 +237,11 @@ function Nameplate({ name, seed, waiting, highlight }: { name: string; seed: str
         <div className="text-xs font-semibold text-slate-200">{name}</div>
         <div className="text-[10px] text-slate-500">{waiting ? 'open seat' : shortKey(seed)}</div>
       </div>
+      {stake !== undefined && (
+        <div className="inline-flex items-center gap-1 rounded-full border border-brand-500/20 bg-brand-500/[0.07] px-2 py-0.5 text-[10px] font-semibold text-brand-300">
+          <span className="text-[8px]">◆</span> ◎ {fmtSol(stake)}
+        </div>
+      )}
     </div>
   );
 }
@@ -239,7 +250,7 @@ function StatusLine({ text }: { text: string }) {
   return <div className="h-4 text-center text-xs text-slate-400">{text}</div>;
 }
 
-function BigHand({ emoji, faceDown, locked, pulse, slam, winner, loser }: HandView) {
+function BigHand({ emoji, pick, faceDown, locked, pulse, slam, winner, loser }: HandView) {
   return (
     <div
       className={[
@@ -251,7 +262,11 @@ function BigHand({ emoji, faceDown, locked, pulse, slam, winner, loser }: HandVi
         loser ? 'opacity-50 grayscale' : '',
       ].join(' ')}
     >
-      <span className={locked ? 'opacity-60' : ''}>{emoji}</span>
+      {pick ? (
+        <HandArt pick={pick} emojiSize="3.5rem" className="h-full w-full p-2" />
+      ) : (
+        <span className={locked ? 'opacity-60' : ''}>{emoji}</span>
+      )}
     </div>
   );
 }
