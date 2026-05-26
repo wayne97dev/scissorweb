@@ -59,6 +59,16 @@ class GameEngine extends EventEmitter {
     return store.db.games[id];
   }
 
+  /** An in-flight game the player belongs to — used to resume after they
+   * navigate away or reconnect, so they can't get stranded out of a live pot. */
+  findActiveGameFor(pubkey: string): GameRow | undefined {
+    return Object.values(store.db.games).find(
+      (g) =>
+        (g.creator === pubkey || g.joiner === pubkey) &&
+        (g.status === 'open' || g.status === 'committing' || g.status === 'revealing')
+    );
+  }
+
   listOpenGames(): PublicGame[] {
     return Object.values(store.db.games)
       .filter((g) => g.status === 'open' && !g.isPractice)

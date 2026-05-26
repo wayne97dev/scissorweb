@@ -195,7 +195,20 @@ async function main() {
   sockB.emit('game:reveal', { gameId: g2.id, pick: 'paper', key: k2b });
   await once(sockA, 'game:settled');
 
+  // --- Scenario 3: resume an in-flight game after reconnect -----------------
+  console.log('\nScenario 3 — reconnect resumes the active game');
+  sockA.emit('game:create', { betSol: bet, isPractice: false });
+  const g3 = await once<{ id: string }>(sockA, 'game:created');
   sockA.close();
+  const sockA2 = ClientIO(url, { transports: ['websocket'] });
+  await once(sockA2, 'connect');
+  const resumedP = waitFor<{ id: string; creator: string }>(sockA2, 'game:state', (g) => g.id === g3.id);
+  await login(sockA2, A);
+  const resumed = await resumedP;
+  check('reconnect resumes the active game', resumed.id === g3.id && resumed.creator === A.pubkey);
+  sockA2.emit('game:cancel', { gameId: g3.id });
+  sockA2.close();
+
   sockB.close();
   ioServer.close();
   httpServer.close();

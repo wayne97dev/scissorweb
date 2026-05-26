@@ -76,6 +76,14 @@ export function attachSockets(io: Server) {
         socket.emit('auth:ok', { pubkey: payload.pubkey });
         socket.emit('balance', publicBalance(payload.pubkey));
         socket.emit('lobby', { games: engine.listOpenGames() });
+
+        // Resume any in-flight game this player is part of (handles navigating
+        // back to the lobby or reconnecting after a refresh).
+        const active = engine.findActiveGameFor(payload.pubkey);
+        if (active) {
+          socket.join(gameRoom(active.id));
+          socket.emit('game:state', engine.toPublic(active));
+        }
       } catch (err) {
         fail(socket, 'auth', err);
       }

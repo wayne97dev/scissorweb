@@ -85,6 +85,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const activeGameRef = useRef<PublicGame | null>(null);
   activeGameRef.current = activeGame;
+  const pubkeyRef = useRef<string | null>(null);
+  pubkeyRef.current = pubkey;
 
   const doLogin = useCallback(async (sock: Socket, id: Identity) => {
     if (loggingInRef.current) return;
@@ -128,6 +130,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     sock.on('auth:ok', (d: { pubkey: string }) => {
       setAuthed(true);
       setPubkey(d.pubkey);
+      pubkeyRef.current = d.pubkey;
     });
     sock.on('game:created', (g: PublicGame) => {
       secretsRef.current.delete(g.id);
@@ -138,7 +141,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
     sock.on('game:state', (g: PublicGame) => {
       const cur = activeGameRef.current;
-      if (cur && cur.id === g.id) setActiveGame(g);
+      const mine = g.creator === pubkeyRef.current || g.joiner === pubkeyRef.current;
+      const live = g.status === 'open' || g.status === 'committing' || g.status === 'revealing';
+      // Re-attach to a live game we belong to (e.g. opponent joined after we
+      // went back to the lobby, or we reconnected) so we're never stranded.
+      if ((cur && cur.id === g.id) || (mine && live)) setActiveGame(g);
     });
     sock.on('game:settled', (rec: FairnessRecord) => {
       const cur = activeGameRef.current;
