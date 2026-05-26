@@ -100,6 +100,17 @@ async function faucetTo(socket: ClientSocket, target: number) {
   await waitFor<{ balance: number }>(socket, 'balance', (b) => b.balance >= target);
 }
 
+function getBalance(socket: ClientSocket): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('balance timeout')), 8000);
+    socket.once('balance', (b: { balance: number }) => {
+      clearTimeout(t);
+      resolve(b.balance);
+    });
+    socket.emit('balance:get');
+  });
+}
+
 async function main() {
   const httpServer = http.createServer();
   const ioServer = new Server(httpServer, { cors: { origin: '*' } });
@@ -195,8 +206,33 @@ async function main() {
   sockB.emit('game:reveal', { gameId: g2.id, pick: 'paper', key: k2b });
   await once(sockA, 'game:settled');
 
-  // --- Scenario 3: resume an in-flight game after reconnect -----------------
-  console.log('\nScenario 3 — reconnect resumes the active game');
+  // --- Scenario 3: a tie refunds both stakes --------------------------------
+  console.log('\nScenario 3 — tie refunds both stakes');
+  const aBefore = await getBalance(sockA);
+  const bBefore = await getBalance(sockB);
+  sockA.emit('game:create', { betSol: bet, isPractice: false });
+  const gt = await once<{ id: string }>(sockA, 'game:created');
+  const committingT = waitFor(sockA, 'game:state', (g: any) => g.status === 'committing');
+  sockB.emit('game:join', { gameId: gt.id });
+  await committingT;
+  const ktA = randomClientKey();
+  const ktB = randomClientKey();
+  const revealingT = waitFor(sockA, 'game:state', (g: any) => g.status === 'revealing');
+  sockA.emit('game:commit', { gameId: gt.id, commitment: computeCommitment(gt.id, 'rock', ktA) });
+  sockB.emit('game:commit', { gameId: gt.id, commitment: computeCommitment(gt.id, 'rock', ktB) });
+  await revealingT;
+  const tieSettled = once<FairnessRecord>(sockA, 'game:settled');
+  sockA.emit('game:reveal', { gameId: gt.id, pick: 'rock', key: ktA });
+  sockB.emit('game:reveal', { gameId: gt.id, pick: 'rock', key: ktB });
+  const tieRec = await tieSettled;
+  check('outcome is tie (same move)', tieRec.outcome === 'tie' && tieRec.winner === null);
+  const aAfter = await getBalance(sockA);
+  const bAfter = await getBalance(sockB);
+  check('tie refunds creator stake (net 0)', aAfter === aBefore, { aBefore, aAfter });
+  check('tie refunds joiner stake (net 0)', bAfter === bBefore, { bBefore, bAfter });
+
+  // --- Scenario 4: resume an in-flight game after reconnect -----------------
+  console.log('\nScenario 4 — reconnect resumes the active game');
   sockA.emit('game:create', { betSol: bet, isPractice: false });
   const g3 = await once<{ id: string }>(sockA, 'game:created');
   sockA.close();
