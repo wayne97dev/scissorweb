@@ -7,6 +7,7 @@ import { fmtSol, shortKey } from '@/lib/format';
 import { CashierModal } from './CashierModal';
 import { Logo } from './Logo';
 import { Identicon } from './Identicon';
+import { XIcon, X_URL } from './XIcon';
 
 export function TopBar() {
   const { authed, pubkey, identity, balance, custody, connected, activeGame, leaveGame, logout } = useApp();
@@ -42,7 +43,17 @@ export function TopBar() {
           <Logo />
         </button>
 
-        {authed ? (
+        <div className="flex items-center gap-2">
+          <a
+            href={X_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Duel on X"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-white"
+          >
+            <XIcon size={15} />
+          </a>
+          {authed ? (
           <div className="flex items-center gap-2">
             <span
               className={`chip hidden md:inline-flex ${custody?.demoMode ? 'text-tie' : netLabel === 'Mainnet' ? 'text-win' : 'text-brand-300'}`}
@@ -94,6 +105,7 @@ export function TopBar() {
             {connected ? 'Server online' : 'Connecting…'}
           </span>
         )}
+        </div>
       </div>
       <CashierModal open={cashier} onClose={() => setCashier(false)} />
     </header>

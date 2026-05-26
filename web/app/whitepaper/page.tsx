@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { LogoMark } from '@/components/Logo';
+import { XIcon, X_URL } from '@/components/XIcon';
 
 export const metadata: Metadata = {
   title: 'Duel · Whitepaper',
@@ -258,10 +259,19 @@ export default function Whitepaper() {
 
       <footer className="mt-14 border-t border-white/[0.06] pt-6 text-center text-xs text-slate-600">
         Duel · 0% house edge · winner takes the pot · picks hashed &amp; verifiable · built on Solana
-        <div className="mt-3">
+        <div className="mt-3 flex items-center justify-center gap-3">
           <Link href="/" className="btn-brand">
             Play now
           </Link>
+          <a
+            href={X_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost"
+            aria-label="Duel on X"
+          >
+            <XIcon size={15} /> @rockscisspaper
+          </a>
         </div>
       </footer>
     </div>
