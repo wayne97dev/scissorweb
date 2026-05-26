@@ -3,9 +3,30 @@ import type { Metadata } from 'next';
 import { Providers } from './providers';
 import { Background } from '@/components/Background';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://scissorweb.netlify.app';
+const DESCRIPTION =
+  '1v1 Rock Paper Scissors on Solana. 0% house edge, winner takes the pot. Provably fair.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Duel · Rock Paper Scissors',
-  description: 'Provably-fair, no-house-edge 1v1 Rock Paper Scissors on Solana.',
+  description: DESCRIPTION,
+  openGraph: {
+    title: 'Duel · Rock Paper Scissors',
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'Duel',
+    type: 'website',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Duel — 1v1 Rock Paper Scissors on Solana' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Duel · Rock Paper Scissors',
+    description: DESCRIPTION,
+    images: ['/og.png'],
+    site: '@rockscisspaper',
+    creator: '@rockscisspaper',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
