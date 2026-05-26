@@ -76,17 +76,31 @@ class Store {
     this.load();
   }
 
+  private readInto(file: string): boolean {
+    if (!fs.existsSync(file)) return false;
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as Partial<DBShape>;
+    this.db = { ...empty(), ...parsed };
+    return true;
+  }
+
   private load() {
     try {
-      if (fs.existsSync(this.file)) {
-        const raw = fs.readFileSync(this.file, 'utf8');
-        const parsed = JSON.parse(raw) as Partial<DBShape>;
-        this.db = { ...empty(), ...parsed };
-        this.recoverInFlightGames();
-      }
+      this.readInto(this.file);
+      this.recoverInFlightGames();
     } catch (err) {
-      console.error('[store] failed to load, starting fresh:', err);
-      this.db = empty();
+      // Main file missing/corrupt — try the rolling backup before giving up.
+      console.error('[store] main load failed, trying backup:', err);
+      try {
+        if (this.readInto(this.file + '.bak')) {
+          this.recoverInFlightGames();
+          console.warn('[store] recovered ledger from .bak');
+        } else {
+          this.db = empty();
+        }
+      } catch (err2) {
+        console.error('[store] backup load failed, starting fresh:', err2);
+        this.db = empty();
+      }
     }
   }
 
@@ -117,16 +131,30 @@ class Store {
     u.balance += release;
   }
 
+  /** Atomic write: temp file + rename, keeping the previous version as .bak. */
+  private writeNow() {
+    try {
+      fs.mkdirSync(path.dirname(this.file), { recursive: true });
+      const tmp = this.file + '.tmp';
+      fs.writeFileSync(tmp, JSON.stringify(this.db, null, 2));
+      if (fs.existsSync(this.file)) {
+        try {
+          fs.copyFileSync(this.file, this.file + '.bak');
+        } catch {
+          /* best-effort backup */
+        }
+      }
+      fs.renameSync(tmp, this.file); // atomic on the same filesystem
+    } catch (err) {
+      console.error('[store] write failed:', err);
+    }
+  }
+
   save() {
     if (this.writeTimer) return;
     this.writeTimer = setTimeout(() => {
       this.writeTimer = null;
-      try {
-        fs.mkdirSync(path.dirname(this.file), { recursive: true });
-        fs.writeFileSync(this.file, JSON.stringify(this.db, null, 2));
-      } catch (err) {
-        console.error('[store] write failed:', err);
-      }
+      this.writeNow();
     }, 150);
   }
 
@@ -135,12 +163,7 @@ class Store {
       clearTimeout(this.writeTimer);
       this.writeTimer = null;
     }
-    try {
-      fs.mkdirSync(path.dirname(this.file), { recursive: true });
-      fs.writeFileSync(this.file, JSON.stringify(this.db, null, 2));
-    } catch (err) {
-      console.error('[store] flush failed:', err);
-    }
+    this.writeNow();
   }
 }
 
