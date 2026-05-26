@@ -254,16 +254,16 @@ function BigHand({ emoji, pick, faceDown, locked, pulse, slam, winner, loser }: 
   return (
     <div
       className={[
-        'grid h-28 w-28 place-items-center rounded-3xl border text-6xl transition sm:h-32 sm:w-32',
-        winner ? 'border-win/50 bg-win/10 shadow-glow-win' : 'border-white/10 bg-white/[0.03]',
+        'relative grid h-28 w-28 place-items-center overflow-hidden rounded-3xl border text-6xl transition sm:h-32 sm:w-32',
+        winner ? 'border-win/60 bg-win/10 shadow-glow-win' : 'border-white/10 bg-white/[0.03]',
         slam === 'left' ? 'animate-slam-left' : slam === 'right' ? 'animate-slam-right' : '',
         pulse ? 'animate-pulse-soft' : '',
         faceDown ? 'opacity-70' : '',
-        loser ? 'opacity-50 grayscale' : '',
+        loser ? 'opacity-60 grayscale' : '',
       ].join(' ')}
     >
       {pick ? (
-        <HandArt pick={pick} emojiSize="3.5rem" className="h-full w-full p-2" />
+        <HandArt pick={pick} emojiSize="3.5rem" className="absolute inset-0 h-full w-full" />
       ) : (
         <span className={locked ? 'opacity-60' : ''}>{emoji}</span>
       )}

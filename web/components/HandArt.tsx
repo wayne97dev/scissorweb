@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import type { Pick } from '@rps/shared';
 import { pickEmoji } from '@/lib/format';
 
-// Drop your Leonardo-generated art here (transparent PNG, square):
-//   web/public/hands/rock.png · paper.png · scissors.png
-// Until the files exist, the component gracefully shows the emoji fallback.
+// Art lives in web/public/hands/{rock,paper,scissors}.png (square, with bg).
+// Until a file exists, the emoji fallback is shown.
 const EXT = 'png';
 
+/** Fills its (rounded, overflow-hidden) parent with the hand art, cover-style. */
 export function HandArt({
   pick,
   emojiSize = '3rem',
@@ -22,9 +22,12 @@ export function HandArt({
   useEffect(() => setLoaded(false), [pick]);
 
   return (
-    <span className={`relative grid place-items-center ${className}`}>
+    <span className={`relative block overflow-hidden ${className}`}>
       {!loaded && (
-        <span style={{ fontSize: emojiSize, lineHeight: 1 }} className="drop-shadow">
+        <span
+          className="absolute inset-0 grid place-items-center drop-shadow"
+          style={{ fontSize: emojiSize, lineHeight: 1 }}
+        >
           {pickEmoji(pick)}
         </span>
       )}
@@ -34,11 +37,7 @@ export function HandArt({
         draggable={false}
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(false)}
-        className={
-          loaded
-            ? 'max-h-full max-w-full object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)]'
-            : 'absolute h-0 w-0 opacity-0'
-        }
+        className={loaded ? 'h-full w-full object-cover' : 'absolute h-0 w-0 opacity-0'}
       />
     </span>
   );

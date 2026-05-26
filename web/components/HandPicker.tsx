@@ -21,20 +21,27 @@ export function HandPicker({ onLock }: { onLock: (p: Pick) => void }) {
               onClick={() => setSelected(p)}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setSelected(p)}
               className={[
-                'group relative aspect-[4/5] w-full cursor-pointer select-none overflow-hidden rounded-2xl border outline-none transition duration-200',
+                'group relative aspect-square w-full cursor-pointer select-none overflow-hidden rounded-2xl border outline-none transition duration-200',
                 sel
-                  ? 'border-brand-500/70 bg-brand-500/10 shadow-glow'
-                  : 'border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] hover:-translate-y-1 hover:border-white/25 hover:shadow-lift',
+                  ? 'border-brand-500/70 ring-2 ring-brand-500/40 shadow-glow'
+                  : 'border-white/10 hover:-translate-y-1 hover:border-white/30 hover:shadow-lift',
               ].join(' ')}
             >
-              {/* top sheen */}
-              <span className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/10 to-transparent opacity-0 transition group-hover:opacity-100" />
               <HandArt
                 pick={p}
-                emojiSize="3.25rem"
-                className={`h-full w-full p-3 pb-7 transition group-hover:scale-105 ${sel ? 'scale-105' : ''}`}
+                emojiSize="3rem"
+                className={`absolute inset-0 h-full w-full transition duration-300 ${
+                  sel ? 'scale-105' : 'group-hover:scale-105'
+                }`}
               />
+              {/* bottom scrim so the button/label stay legible over the art */}
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
               {sel && (
+                <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-brand-500 text-[11px] font-bold text-ink-975">
+                  ✓
+                </span>
+              )}
+              {sel ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -45,15 +52,12 @@ export function HandPicker({ onLock }: { onLock: (p: Pick) => void }) {
                 >
                   Lock in
                 </button>
+              ) : (
+                <span className="absolute inset-x-0 bottom-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-white/80">
+                  {pickLabel(p)}
+                </span>
               )}
             </div>
-            <span
-              className={`text-[11px] font-semibold uppercase tracking-wide ${
-                sel ? 'text-brand-300' : 'text-slate-500'
-              }`}
-            >
-              {pickLabel(p)}
-            </span>
           </div>
         );
       })}
