@@ -10,6 +10,7 @@ const bool = (v: string | undefined, fallback: boolean) =>
 
 export const config = {
   port: num(process.env.PORT, 4000),
+  /** Allowed browser origin(s) for CORS: a single origin, comma-separated list, or "*". */
   clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:3000',
 
   /** When true, deposits/withdrawals are simulated (faucet) — no real chain. */

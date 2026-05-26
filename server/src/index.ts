@@ -8,10 +8,21 @@ import { engine } from './engine';
 import { custodyInfo } from './solana';
 import { attachSockets } from './sockets';
 
-const origins = [config.clientOrigin, 'http://localhost:3000', 'http://127.0.0.1:3000'];
+/** Build the CORS origin setting: "*" (allow all) or an explicit allow-list. */
+function resolveCorsOrigin(): '*' | string[] {
+  const raw = config.clientOrigin.trim();
+  if (raw === '*') return '*';
+  const listed = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return Array.from(new Set([...listed, 'http://localhost:3000', 'http://127.0.0.1:3000']));
+}
+
+const corsOrigin = resolveCorsOrigin();
 
 const app = express();
-app.use(cors({ origin: origins }));
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
@@ -27,7 +38,7 @@ app.get('/api/game/:id', (req, res) => {
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: origins, methods: ['GET', 'POST'] },
+  cors: { origin: corsOrigin, methods: ['GET', 'POST'] },
 });
 
 attachSockets(io);

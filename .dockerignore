@@ -1,0 +1,15 @@
+**/node_modules
+.git
+.gitignore
+.next
+web/out
+web/.next
+**/dist
+**/*.tsbuildinfo
+server/data/*.json
+*.log
+.env
+**/.env
+**/.env.local
+.claude
+.netlify

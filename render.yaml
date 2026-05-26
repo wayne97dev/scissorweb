@@ -1,0 +1,25 @@
+# Render Blueprint for the Duel RPS backend (Socket.IO server).
+# In Render: New → Blueprint → pick this repo. Render reads this file.
+#
+# Render injects PORT automatically (the server reads process.env.PORT).
+# After deploy, copy the service URL into Netlify's NEXT_PUBLIC_SERVER_URL.
+services:
+  - type: web
+    name: duel-rps-server
+    runtime: node
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    buildCommand: npm ci && npm run build:shared
+    startCommand: npm run start --workspace server
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DEMO_MODE
+        value: "true"
+      # "*" allows any browser origin (auth is signature-based, no cookies).
+      # Tighten to your Netlify URL once known, e.g. https://scissorweb.netlify.app
+      - key: CLIENT_ORIGIN
+        value: "*"
+      - key: SOLANA_RPC
+        value: https://api.devnet.solana.com
