@@ -60,10 +60,18 @@ export async function verifyAndCreditDeposit(
 
   const conn = getConnection();
   const platformPk = getPlatform().publicKey;
-  const tx = await conn.getTransaction(signature, {
-    commitment: 'confirmed',
-    maxSupportedTransactionVersion: 0,
-  });
+
+  // The client confirms before calling us, but the tx can still take a moment
+  // to be queryable — retry a few times before giving up.
+  let tx = null as Awaited<ReturnType<typeof conn.getTransaction>>;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    tx = await conn.getTransaction(signature, {
+      commitment: 'confirmed',
+      maxSupportedTransactionVersion: 0,
+    });
+    if (tx) break;
+    await new Promise((r) => setTimeout(r, 1500));
+  }
   if (!tx || !tx.meta) throw new Error('TX_NOT_FOUND_OR_UNCONFIRMED');
   if (tx.meta.err) throw new Error('TX_FAILED');
 
