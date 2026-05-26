@@ -100,7 +100,7 @@ export function CashierModal({ open, onClose }: { open: boolean; onClose: () => 
               Withdraw to wallet
             </button>
             <p className="text-[11px] text-slate-500">
-              Devnet custodial mode. Deposits transfer SOL to the platform wallet and credit your balance
+              Custodial mode. Deposits transfer SOL to the platform wallet and credit your balance
               after on-chain confirmation.
             </p>
           </div>
