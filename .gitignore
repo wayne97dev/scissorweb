@@ -9,7 +9,7 @@ build/
 .env
 .env.local
 *.env
-server/data/*.json
+server/data/*
 !server/data/.gitkeep
 platform-keypair.json
 
