@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useApp } from '@/lib/store';
 import { loadOrCreateGuest } from '@/lib/identity';
 import { WalletButton } from './WalletButton';
@@ -59,6 +60,13 @@ export function AuthGate() {
               {connected ? 'Server online' : 'Connecting…'}
             </span>
           </div>
+
+          <Link
+            href="/whitepaper"
+            className="mt-5 inline-block text-sm text-slate-500 underline-offset-2 transition hover:text-brand-300 hover:underline"
+          >
+            New to Duel? Read the whitepaper →
+          </Link>
         </div>
 
         {/* floating hands stage */}
