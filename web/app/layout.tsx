@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Providers } from './providers';
 import { Background } from '@/components/Background';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://scissorweb.netlify.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://duelpvp.net';
 const DESCRIPTION =
   '1v1 Rock Paper Scissors on Solana. 0% house edge, winner takes the pot. Provably fair.';
 
